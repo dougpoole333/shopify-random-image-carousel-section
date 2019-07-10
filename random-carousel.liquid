@@ -1,0 +1,71 @@
+
+<div class="main-carousel" data-flickity='{ "groupCells": true }'>
+  {% assign list = '-' %}
+   {% for c in (1..50) %}
+  	{% assign min = 0 %}
+    {% assign max = collections[section.settings.feature_collection].products.size %}
+    {% assign diff = max | minus: min %}
+	{% assign randomNumber = "now" | date: "%N" | modulo: diff | plus: min %}
+  	{% assign d = collections[section.settings.feature_collection].products[randomNumber] %}
+  	{% assign listArr = list | split: "-" %}
+  	{% if listArr.size > section.settings.carousel_limit %}
+  		{% break %}
+      {% elsif d.handle == product.handle or list contains randomNumber %}
+        {% continue %}
+      {% else %}
+        <div class="carousel-cell">
+          <img src="{{d | img_url: "600x"}}" alt="{{d.title}}">
+          <a href="{{d.url}}">{{d.title}}</a>
+          <h2>{{d.price | money }}</h2>
+        </div>
+  		{% assign listEl = randomNumber | append: '-' %}
+        {% assign list = list | append: listEl %}
+      {%endif%}
+  {%endfor%}
+</div>
+
+
+{% schema %}
+  {
+    "name": "Continue Shopping",
+    "settings": [
+			{  
+				"type": "collection",	
+				"id": "feature_collection",
+				"label": "feature collection"
+			},
+			{  
+				"type": "range",
+                "id": "carousel_limit",
+                "min": 3,
+                "max": 10,
+                "step": 1,
+                "label": "number of items in carousel",
+                "default": 5
+			}
+		
+		]
+  }
+{% endschema %}
+
+{% stylesheet %}
+	* { box-sizing: border-box;
+	 }
+	.carousel-cell {
+      width: 50%;
+      counter-increment: carousel-cell;
+    }
+	.carousel-cell:before {
+      display: block;
+    }
+{% endstylesheet %}
+
+{% javascript %}
+  $('.main-carousel').flickity({
+    cellAlign: 'left',
+    contain: true,
+	imagesLoaded: true
+  });
+
+
+{% endjavascript %}
